@@ -1,0 +1,115 @@
+---
+title: "Content Creation Workflows: Automate Your Output"
+sidebarTitle: "Content Creation"
+description: "Automate blog posts, social media, and video repurposing with AI-powered n8n workflows that work while you sleep."
+---
+
+Content creation is one of the highest-leverage things you can automate as a solopreneur or creator. With the right workflow, a single YouTube video can become a blog post, a LinkedIn carousel, three Twitter threads, and an email newsletter — automatically.
+
+## Popular Content Workflows
+
+<Accordion title="YouTube to Blog Post">
+  Takes a video transcript, uses Claude to rewrite it as a long-form SEO blog post, and publishes it to your CMS. This workflow eliminates the most time-consuming part of content repurposing — turning the spoken word into polished written content.
+</Accordion>
+
+<Accordion title="Video to Social Clips">
+  Automatically extracts key quotes from a transcript and formats them as platform-specific social media posts. You get LinkedIn posts, tweet-length snippets, and short-form captions without touching a keyboard.
+</Accordion>
+
+<Accordion title="Email Newsletter Generator">
+  Pulls your latest content — YouTube videos, blog posts, community updates — and drafts a weekly newsletter using an AI template. Schedule it to run every Sunday night so your newsletter is ready to review Monday morning.
+</Accordion>
+
+<Accordion title="Content Calendar Automation">
+  Schedules and distributes content across platforms based on a master Airtable or Notion calendar. When you add a row to your calendar, the workflow picks it up and queues it for publishing at the right time.
+</Accordion>
+
+## YouTube to Blog Post Workflow
+
+<Steps>
+  <Step title="Trigger">
+    A webhook fires when a new YouTube video is published — set this up via the YouTube RSS feed or the YouTube Data API.
+  </Step>
+  <Step title="Transcript">
+    Pass the video URL to a transcription node — AssemblyAI and Whisper both work well here — to retrieve the full video transcript.
+  </Step>
+  <Step title="AI Rewrite">
+    Send the transcript to Claude with a structured prompt: *"Rewrite this transcript as a long-form blog post with SEO headings, a strong intro, and a conclusion."*
+  </Step>
+  <Step title="Publish">
+    POST the AI-generated blog content to your CMS — WordPress, Ghost, or Webflow — via their respective APIs.
+  </Step>
+  <Step title="Notify">
+    Send a Slack message or email notification containing the published URL so you know the post is live.
+  </Step>
+</Steps>
+
+Below is a simplified n8n workflow JSON showing the key nodes in this pipeline:
+
+```json
+{
+  "nodes": [
+    {
+      "name": "YouTube RSS Trigger",
+      "type": "n8n-nodes-base.rssFeedReadTrigger",
+      "parameters": {
+        "url": "https://www.youtube.com/feeds/videos.xml?channel_id=YOUR_CHANNEL_ID"
+      }
+    },
+    {
+      "name": "Get Transcript",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.assemblyai.com/v2/transcript",
+        "body": {
+          "audio_url": "={{ $json.videoUrl }}"
+        }
+      }
+    },
+    {
+      "name": "Claude - Rewrite as Blog Post",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "body": {
+          "model": "claude-3-5-sonnet-20241022",
+          "max_tokens": 4096,
+          "messages": [
+            {
+              "role": "user",
+              "content": "Rewrite the following transcript as a long-form SEO blog post with clear headings, an engaging intro, and a strong conclusion:\n\n{{ $json.transcript }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Publish to CMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "method": "POST",
+        "url": "https://your-cms.com/api/posts",
+        "body": {
+          "title": "={{ $json.videoTitle }}",
+          "content": "={{ $json.blogPost }}",
+          "status": "draft"
+        }
+      }
+    },
+    {
+      "name": "Slack Notification",
+      "type": "n8n-nodes-base.slack",
+      "parameters": {
+        "channel": "#content",
+        "text": "New blog post draft published: {{ $json.postUrl }}"
+      }
+    }
+  ]
+}
+```
+
+<Tip>
+  Add a human review step before publishing — route the AI draft to a Google Doc or Notion page, review it, then trigger the publish step manually.
+</Tip>

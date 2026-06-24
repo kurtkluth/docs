@@ -1,0 +1,74 @@
+---
+title: "Vibe Code with Cursor and Lovable: Build Apps Fast"
+sidebarTitle: "Cursor & Lovable"
+description: "Use Cursor and Lovable to build full-stack apps, landing pages, and internal tools using natural language — no traditional coding required."
+---
+
+Cursor and Lovable are AI-powered development tools that let you build real software with natural language. Instead of writing every line of code yourself, you describe what you want and the AI builds it. This approach — often called "vibe coding" — is a core skill in AI Builders Circle. Whether you're a developer looking to move faster or a non-technical builder shipping your first app, these tools compress what used to take weeks into hours.
+
+## Cursor
+
+Cursor is a code editor built on VS Code that replaces the traditional coding experience with an AI pair programmer that understands your entire codebase.
+
+- **AI pair programmer in your editor** — Cursor's chat and inline edit modes let you describe a change in plain English and apply it directly to your file, from adding a feature to rewriting a function.
+- **Codebase-aware context** — Unlike a generic chatbot, Cursor indexes your project so it can reference existing files, imports, and patterns when generating code — dramatically reducing hallucinations and mismatches.
+- **Refactor and debug at speed** — Highlight a broken block of code, describe the bug, and Cursor proposes a fix with an explanation. Use it to add tests, rename variables across files, or migrate to a new library.
+- **Powered by Claude and GPT-4** — Switch between Anthropic and OpenAI models depending on the task, giving you access to the best reasoning and code generation available.
+
+## Lovable
+
+Lovable is a browser-based AI app builder that takes a text description and generates a deployable, full-stack application — no local setup required.
+
+- **Full-stack app from a single prompt** — Describe your app in plain English and Lovable scaffolds the frontend, backend logic, and database schema in seconds.
+- **React frontend + Supabase backend** — Every Lovable project uses a battle-tested stack: a React UI, Supabase for the database and auth, and clean TypeScript throughout — production-ready from day one.
+- **Instant live preview** — See your app running in the browser as you make changes. Request edits in natural language ("add a dark mode toggle" or "show a loading spinner while data fetches") and watch the app update in real time.
+- **Great for landing pages and SaaS MVPs** — Lovable is purpose-built for shipping. If your goal is a working product in the hands of users — not a perfect codebase — Lovable is the fastest path there.
+
+## Which One Should You Use?
+
+<Tabs>
+  <Tab title="Use Cursor when...">
+    Cursor is the right choice when you need fine-grained control over code or when you're working inside an existing project.
+
+    | Scenario | Why Cursor |
+    |---|---|
+    | You already have a codebase | Cursor reads your existing files and generates code that fits in |
+    | You need precise edits | Inline edit mode lets you target one function or one file |
+    | You're debugging a tricky issue | Cursor explains errors in context and suggests targeted fixes |
+    | You want to learn as you build | Cursor explains every change it makes, so you understand the output |
+  </Tab>
+  <Tab title="Use Lovable when...">
+    Lovable is the right choice when you're starting from zero and want to ship a working app as fast as possible.
+
+    | Scenario | Why Lovable |
+    |---|---|
+    | You're starting from scratch | Lovable generates the entire stack from a single prompt |
+    | You want to deploy in hours | One-click deploy with no DevOps configuration |
+    | You need a quick MVP or prototype | Iterate in the browser without touching a terminal |
+    | You're non-technical | No local environment, no package managers, no config files |
+  </Tab>
+</Tabs>
+
+## Quick Start with Lovable
+
+<Steps>
+  <Step title="Create your account">
+    Go to [lovable.dev](https://lovable.dev) and create a free account. Your first project is free and deploys to a public URL automatically.
+  </Step>
+  <Step title="Describe your app">
+    Start a new project and describe your app in plain English. Be specific about the core feature: for example, *"Build a lead capture landing page with an email form that saves submissions to an Airtable base and shows a thank-you message after submit."* The more detail you give, the closer the first draft will be to what you want.
+  </Step>
+  <Step title="Review and refine">
+    Lovable generates a live preview of your app within seconds. Review it and request changes in natural language — *"Make the button blue," "Add a testimonials section,"* or *"Move the form above the fold."* Iterate until the layout and logic match your vision.
+  </Step>
+  <Step title="Connect integrations">
+    Use Lovable's built-in connectors to wire up Supabase for your database, Stripe for payments, or any third-party API. For more complex integrations (webhooks, multi-step logic), connect your Lovable app to an n8n workflow.
+  </Step>
+  <Step title="Deploy with one click">
+    Hit **Publish** to deploy your app to a shareable URL. You can connect a custom domain in project settings. Every subsequent change you make in Lovable redeploys automatically.
+  </Step>
+</Steps>
+
+<Tip>
+  See the Vibe Coding guide for a complete walkthrough of building an app from idea to deployment using Lovable and Cursor together.
+</Tip>

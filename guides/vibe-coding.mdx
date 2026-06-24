@@ -1,0 +1,104 @@
+---
+title: "Vibe Coding: Build Apps with AI and No-Code Skills"
+sidebarTitle: "Vibe Coding"
+description: "Learn the vibe coding approach — building real apps and tools using AI pair programmers like Cursor and Lovable without traditional coding skills."
+---
+
+Vibe coding is the practice of building software by describing what you want to an AI and iterating on its output — rather than writing every line yourself. Tools like Cursor, Lovable, and V0 have made this a legitimate way to ship real products, and it's a core skill in AI Builders Circle. Whether you want to build an internal tool, a client-facing web app, or a quick automation dashboard, vibe coding lets you get there without a CS degree.
+
+## What is Vibe Coding?
+
+At its core, vibe coding works like this: you describe what you want in plain language, the AI generates code, and you review and iterate until it matches your vision. The loop is fast — often minutes per feature rather than hours — which means you can go from idea to working prototype in a single afternoon.
+
+The key caveat: you still need to understand what you're building, even if you're not writing the code. Vibe coding isn't a shortcut around thinking — it's a shortcut around syntax. The more clearly you can articulate the problem, the user flow, and the expected behavior, the better the AI's output. Think of the AI as an extremely fast developer who needs good requirements to do good work.
+
+## The Vibe Coding Toolkit
+
+<CardGroup cols={2}>
+  <Card title="Lovable" icon="heart" href="/tools/cursor-lovable">
+    Browser-based app builder. Describe your app in plain English and get a working React app with live preview — no local setup required.
+  </Card>
+  <Card title="Cursor" icon="code" href="/tools/cursor-lovable">
+    AI-powered IDE. Best for editing and extending existing codebases with AI help. Works with any language or framework.
+  </Card>
+  <Card title="V0 by Vercel" icon="layer-group" href="/tools/cursor-lovable">
+    Generate polished React components and full UI layouts from a single prompt. Great for landing pages and design-heavy interfaces.
+  </Card>
+  <Card title="Claude Code" icon="robot" href="/tools/ai-agents">
+    Terminal-based Claude agent that writes, tests, and runs code for you. Ideal for complex logic, APIs, and multi-file projects.
+  </Card>
+</CardGroup>
+
+## Building an App with Lovable
+
+Lovable is the easiest entry point into vibe coding — everything runs in the browser, there's nothing to install, and the live preview makes iteration instant. Here's how to go from idea to deployed app.
+
+<Steps>
+  <Step title="Define the app">
+    Before you open Lovable, write a clear one-paragraph description of your app. Include:
+
+    - **What it does** — the core function in one sentence
+    - **Who uses it** — the primary user and their goal
+    - **Key screens** — the 2-4 main views the user will navigate
+
+    Example: *"A simple CRM for freelancers. Clients can be added with a name, email, and status. The main screen shows a list of all clients filterable by status. Clicking a client opens a detail view where you can add notes and update their status."*
+
+    A clear definition produces a much closer first draft than a vague prompt.
+  </Step>
+
+  <Step title="Generate the scaffold">
+    Paste your description into Lovable's prompt box and click **Generate**. Lovable will build the initial app structure — components, routing, and basic styling — and show it in the live preview panel on the right.
+
+    Don't worry if the first version isn't perfect. Think of this as your starting canvas, not the finished product.
+  </Step>
+
+  <Step title="Iterate in natural language">
+    Review the app in the live preview and start requesting specific changes one at a time. Be precise:
+
+    - "Add a navigation bar at the top with links to Dashboard, Clients, and Settings"
+    - "Make the Add Client button orange"
+    - "Add a form that collects name, email, company, and status"
+
+    Small, specific prompts produce better results than large, sweeping requests. Make one change, see it rendered, then move to the next.
+  </Step>
+
+  <Step title="Add integrations">
+    Once the UI is working, connect real data and services through the Lovable integrations panel:
+
+    - **Supabase** — for a real database (tables, auth, row-level security)
+    - **Stripe** — for payments and subscriptions
+    - **External APIs** — via custom fetch calls Lovable can generate for you
+
+    Lovable will update your app's code to connect to the integration and handle authentication automatically.
+  </Step>
+
+  <Step title="Deploy">
+    Click **Deploy** to publish your app live on a Lovable subdomain (e.g., `yourapp.lovable.app`). Your app is immediately accessible via a public URL — no hosting configuration required.
+
+    When you're ready to go live with a professional domain, connect a custom domain in the Lovable project settings. The deployment pipeline handles SSL and CDN automatically.
+  </Step>
+</Steps>
+
+## Prompting Tips for Better Code
+
+The quality of your prompts directly determines the quality of the code you get back. These practices will make every vibe coding session more efficient.
+
+<Accordion title="Be specific about the stack">
+  Mention your target framework, database, and libraries upfront — don't leave the AI to guess. For example: *"Use React with TypeScript, Tailwind CSS for styling, and Supabase for the database."* Specifying the stack keeps the output consistent and avoids the AI mixing incompatible libraries across different prompts in the same session.
+</Accordion>
+
+<Accordion title="Show examples">
+  Paste in a screenshot of an app you like, describe a reference product, or link to a design. The more context the AI has about what "good" looks like, the closer the output will be to your vision. You can also describe existing components: *"Make it look similar to a Notion database view — rows, columns, filters at the top."*
+</Accordion>
+
+<Accordion title="Break big features into small prompts">
+  Don't ask for everything at once. Build one feature at a time, test it in the live preview, confirm it works, and then move on to the next. Large, multi-part prompts produce messy code that's harder to debug. Small prompts produce clean, targeted changes that are easy to verify and roll back if something breaks.
+</Accordion>
+
+<Accordion title="Ask for explanations">
+  If the AI adds code you don't recognize, ask it to explain: *"What does this useEffect hook do?"* or *"Why did you add this middleware?"* Understanding what's in your app — even at a high level — helps you catch bugs, ask better follow-up questions, and make smarter decisions about what to build next. You don't need to understand every line, but you should understand every feature.
+</Accordion>
+
+<Warning>
+  Vibe coding is powerful but not magic. Review the code AI generates before deploying to production — AI can introduce bugs or security vulnerabilities, especially in authentication flows, payment handling, and anything that touches user data. When in doubt, ask the AI to audit its own output or get a second opinion from a developer before going live.
+</Warning>

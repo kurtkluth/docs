@@ -1,0 +1,174 @@
+---
+title: "Build Your First n8n Automation: Step-by-Step Guide"
+sidebarTitle: "First Automation"
+description: "Follow this beginner-friendly guide to build and deploy your first working automation in n8n — no coding experience required."
+---
+
+If you've never built an automation before, this guide is your starting point. By the end, you'll have a working n8n workflow that does something useful — saving you time every day it runs. No coding experience required.
+
+## What You'll Build
+
+You'll build a workflow that monitors a Gmail inbox for messages with a specific subject line and saves them to a Google Sheet automatically. This is one of the most practical starter automations because it has a real-world use case right out of the box — capturing leads, tracking client emails, logging support requests, or any situation where you want a permanent, searchable record of specific messages without lifting a finger.
+
+Every time an email arrives with your target keyword in the subject line (for example, `[Lead]`), n8n will capture the sender, subject, date, and a snippet of the message body and append a new row to your spreadsheet. No copy-pasting. No missed messages.
+
+## Prerequisites
+
+Before you start, make sure you have:
+
+- An n8n account (cloud at [n8n.io](https://n8n.io) or self-hosted)
+- A Google account (for Gmail and Google Sheets access)
+- About 20 minutes of focused time
+
+## Step-by-Step
+
+<Steps>
+  <Step title="Create a new workflow">
+    Open your n8n dashboard and click **+ New Workflow** in the top-right corner. Give it a clear, descriptive name — something like **"Gmail to Sheets Logger"** works well. A good name makes it easy to find and maintain later.
+  </Step>
+
+  <Step title="Add a trigger">
+    Click the **+** button in the canvas to add your first node. Search for **Gmail Trigger** and select it. Set the trigger to watch for **New Email** events.
+
+    You'll be prompted to authenticate — click **Connect Google Account** and follow the OAuth flow to grant n8n access to your Gmail. Once connected, your credentials are saved in n8n's credential manager and can be reused across workflows.
+
+    Set the **Poll Time** to however frequently you want n8n to check for new messages (every minute, every 5 minutes, etc.).
+  </Step>
+
+  <Step title="Filter by subject">
+    Add an **IF** node after the Gmail Trigger by clicking the **+** connector on the right side of the trigger node. The IF node lets you route emails down different paths based on conditions.
+
+    Configure the condition:
+    - **Field**: `subject`
+    - **Operation**: `contains`
+    - **Value**: your target keyword, e.g. `[Lead]`
+
+    Emails matching the condition will flow down the **true** branch. All others will be ignored via the **false** branch (you can leave that branch empty for now).
+  </Step>
+
+  <Step title="Connect Google Sheets">
+    On the **true** branch of the IF node, click **+** and add a **Google Sheets** node. Set the operation to **Append Row**.
+
+    Authenticate with the same Google account if prompted, then select your target spreadsheet and sheet tab. Map the incoming email fields to your columns:
+
+    | Column | Field |
+    |--------|-------|
+    | From | `{{ $json.from.value[0].address }}` |
+    | Subject | `{{ $json.subject }}` |
+    | Date | `{{ $json.date }}` |
+    | Snippet | `{{ $json.text }}` |
+
+    You can add or remove columns at any time — just update the mapping in this node.
+  </Step>
+
+  <Step title="Test it">
+    Click **Test Workflow** at the bottom of the canvas. Then send yourself a test email from any account with your target keyword in the subject line (e.g., subject: `[Lead] New inquiry from website`).
+
+    Wait a moment and watch n8n's execution panel light up. Click through each node to inspect the data flowing through. If everything is wired correctly, you'll see a new row appear in your Google Sheet within seconds.
+  </Step>
+
+  <Step title="Activate">
+    Once the test passes, toggle the workflow to **Active** using the switch in the top-right corner of the editor. Make sure you also click **Save**.
+
+    Your workflow will now run automatically on the schedule you set — no browser tab required, no manual effort. Every matching email gets logged to your sheet.
+  </Step>
+</Steps>
+
+## Workflow Structure
+
+Here's a simplified JSON representation of the three-node workflow you just built. You can import this directly into n8n via **Workflow → Import from JSON** as a starting point.
+
+<CodeGroup>
+```json Gmail to Sheets Logger
+{
+  "name": "Gmail to Sheets Logger",
+  "nodes": [
+    {
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [240, 300],
+      "parameters": {
+        "pollTimes": {
+          "item": [{ "mode": "everyMinute" }]
+        },
+        "simple": true
+      }
+    },
+    {
+      "name": "IF",
+      "type": "n8n-nodes-base.if",
+      "position": [460, 300],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.subject }}",
+              "operation": "contains",
+              "value2": "[Lead]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [680, 200],
+      "parameters": {
+        "operation": "append",
+        "sheetId": "YOUR_SHEET_ID",
+        "range": "Sheet1!A:D",
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "From":    "={{ $json.from.value[0].address }}",
+            "Subject": "={{ $json.subject }}",
+            "Date":    "={{ $json.date }}",
+            "Snippet": "={{ $json.text }}"
+          }
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Gmail Trigger": {
+      "main": [[{ "node": "IF", "type": "main", "index": 0 }]]
+    },
+    "IF": {
+      "main": [[{ "node": "Google Sheets", "type": "main", "index": 0 }]]
+    }
+  }
+}
+```
+</CodeGroup>
+
+## Common Issues
+
+<Accordion title="Authentication fails for Google">
+  Make sure you've connected your Google credentials in n8n's credential manager **before** adding the node to your canvas. Navigate to **Credentials → New → Google OAuth2**, complete the OAuth flow, and save. Then return to your workflow and select those saved credentials in the Gmail Trigger and Google Sheets nodes.
+
+  If you're self-hosting n8n, you'll also need to configure a Google OAuth app in Google Cloud Console and add your n8n instance URL as an authorized redirect URI.
+</Accordion>
+
+<Accordion title="Workflow runs but no data appears in Sheets">
+  This usually means the IF node condition isn't matching. Open the IF node and double-check:
+
+  - The **field name** is exactly `subject` (case-sensitive)
+  - The **value** you're filtering for matches the subject of your test email exactly
+  - You're on the correct **branch** — the Google Sheets node should be connected to the **true** output of the IF node, not the false output
+
+  Use the **test data panel** (click any node after a test run) to inspect the raw data the Gmail Trigger is producing. This shows you the exact field names and values available to map.
+</Accordion>
+
+<Accordion title="Workflow isn't triggering automatically">
+  Two things to check:
+
+  1. **Active toggle** — Confirm the workflow is set to Active using the toggle in the top-right of the editor. If it shows as Inactive, it won't run on a schedule.
+  2. **Saved** — Make sure you clicked **Save** after activating. On n8n Cloud, unsaved changes won't take effect even if the toggle is on.
+
+  If you're on a free n8n Cloud plan, also check whether your workflow execution limit has been reached for the month — workflows pause automatically once the limit is hit.
+</Accordion>
+
+<Tip>
+  Once this works, extend it: add a **Slack** notification node after the Google Sheets node to ping you in a channel whenever a new row is added. You'll have a complete lead logger — email captured, spreadsheet updated, and team notified — in under 30 minutes total.
+</Tip>

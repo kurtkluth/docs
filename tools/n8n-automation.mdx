@@ -1,0 +1,116 @@
+---
+title: "Automate Workflows with n8n: A Builder's Guide"
+sidebarTitle: "n8n"
+description: "Learn how to use n8n to build visual automation workflows that connect your apps, trigger AI actions, and run your business on autopilot."
+---
+
+n8n is an open-source workflow automation tool that lets you visually connect apps, APIs, and AI models without writing code. In AI Builders Circle, n8n is the backbone of most automation builds — from lead generation pipelines to content repurposing workflows. Whether you run it in the cloud or self-host it on your own server, n8n gives you full control over your automations and your data.
+
+## Why n8n?
+
+n8n stands out from other automation platforms for a handful of reasons that matter to builders:
+
+- **Self-hosted or cloud** — Run n8n on your own infrastructure to keep data private, or use n8n Cloud for a zero-maintenance setup. Either way, your workflows are fully portable.
+- **Visual drag-and-drop editor** — Build complex, multi-step workflows by connecting nodes on a canvas. No boilerplate, no framework to learn.
+- **400+ built-in integrations** — Native nodes for Google Sheets, Airtable, Slack, HubSpot, Gmail, Stripe, Notion, and hundreds more mean you rarely need a custom HTTP call.
+- **AI-native nodes** — First-class support for OpenAI, Anthropic (Claude), and other AI providers lets you drop LLM calls directly into any workflow without extra setup.
+
+## Core Concepts
+
+<AccordionGroup>
+  <Accordion title="Workflows">
+    A workflow is a sequence of nodes that run in order. Each node performs a discrete action: receiving a webhook, calling an API, running an AI prompt, transforming data, or sending an email. Workflows can branch, loop, and merge — giving you full control over logic without writing code.
+  </Accordion>
+  <Accordion title="Triggers">
+    Every workflow starts with a trigger node. Triggers tell n8n *when* to run: on a set schedule (e.g., every hour), when a webhook fires (e.g., a form submission), or manually when you click "Execute." Choosing the right trigger is the first design decision in any build.
+  </Accordion>
+  <Accordion title="Nodes">
+    Nodes are the building blocks of every workflow. n8n ships with native nodes for HTTP requests, OpenAI, Gmail, Airtable, Slack, Postgres, Webhook, and hundreds more. Each node has configurable fields and passes its output data downstream to the next node in the chain.
+  </Accordion>
+  <Accordion title="Credentials">
+    Store API keys and OAuth tokens once inside n8n's credential manager. Once saved, credentials are available to any node in any workflow — you never paste a raw API key into a node field. Credentials are encrypted at rest and never exposed in workflow exports.
+  </Accordion>
+</AccordionGroup>
+
+## Setting Up n8n
+
+<Steps>
+  <Step title="Sign up or self-host">
+    Go to [n8n.io](https://n8n.io) and sign up for **n8n Cloud** for the fastest start, or self-host using Docker with a single `docker run` command if you want full data control and no monthly seat cost.
+  </Step>
+  <Step title="Create your first workflow">
+    In the n8n dashboard, click **New Workflow**. You'll land on a blank canvas with a single prompt to add your first node. Give your workflow a descriptive name so you can find it later.
+  </Step>
+  <Step title="Add a trigger node">
+    Click the **+** button and search for your trigger. Use **Schedule Trigger** for time-based runs (e.g., pull new leads every morning at 8 a.m.) or **Webhook** for event-based runs (e.g., fire when a form is submitted or a Stripe payment lands).
+  </Step>
+  <Step title="Add action nodes">
+    Chain action nodes after the trigger to do the actual work — fetch data from a Google Sheet, call Claude via the OpenAI node, look up a contact in HubSpot, or post a message to Slack. Each node receives the previous node's output as input.
+  </Step>
+  <Step title="Activate the workflow">
+    When your workflow is ready, toggle the **Active** switch in the top-right corner. n8n will now run the workflow automatically according to your trigger. Monitor executions in the **Executions** tab to catch errors early.
+  </Step>
+</Steps>
+
+## Example: Simple AI Email Workflow
+
+The workflow below triggers on a schedule, pulls new rows from a Google Sheet, passes each row to Claude to generate a personalized email, and sends it via Gmail.
+
+```json
+{
+  "name": "AI Email Outreach",
+  "nodes": [
+    {
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "parameters": {
+        "rule": { "interval": [{ "field": "hours", "hoursInterval": 24 }] }
+      }
+    },
+    {
+      "name": "Get Leads",
+      "type": "n8n-nodes-base.googleSheets",
+      "parameters": {
+        "operation": "getAll",
+        "sheetId": "YOUR_SHEET_ID",
+        "range": "Sheet1!A:D"
+      }
+    },
+    {
+      "name": "Generate Email (Claude)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "parameters": {
+        "model": "claude-sonnet-4-5",
+        "messages": {
+          "values": [
+            {
+              "role": "system",
+              "content": "You are a friendly outreach assistant. Write a 3-sentence personalized email using the lead's name and company."
+            },
+            {
+              "role": "user",
+              "content": "Name: {{ $json.name }}\nCompany: {{ $json.company }}\nPain point: {{ $json.pain_point }}"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Send via Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "parameters": {
+        "operation": "send",
+        "toList": "={{ $('Get Leads').item.json.email }}",
+        "subject": "Quick thought for {{ $('Get Leads').item.json.company }}",
+        "message": "={{ $json.text }}"
+      }
+    }
+  ]
+}
+```
+
+This workflow runs once a day, reads every new lead row from your Google Sheet, asks Claude to write a short personalized email for each one, and delivers it through Gmail — all without any manual effort on your part.
+
+<Tip>
+  Start with the pre-built templates in the AI Builders Circle Free Resources channel. Import the JSON into n8n and customize from there — it's faster than starting from scratch.
+</Tip>

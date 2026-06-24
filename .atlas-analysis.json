@@ -1,27 +1,11 @@
 {
-  "$schema": "https://mintlify.com/docs.json",
+  "projectType": "saas",
+  "projectName": "AI Builders Circle",
+  "projectDescription": "A free community and knowledge base for creators, solopreneurs, and operators who want to save time, automate workflows, and grow smarter with AI tools.",
   "theme": "almond",
-  "name": "AI Builders Circle",
-  "colors": {
-    "primary": "#ef7025",
-    "light": "#eec9bc",
-    "dark": "#4fa1ab"
-  },
-  "favicon": "/favicon.svg",
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      { "label": "Community", "href": "https://www.skool.com/ai-builders-circle-9648" }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Join Free",
-      "href": "https://www.skool.com/ai-builders-circle-9648"
-    }
-  },
+  "primaryColor": "#ef7025",
+  "lightColor": "#eec9bc",
+  "darkColor": "#4fa1ab",
   "navigation": {
     "tabs": [
       {
@@ -75,10 +59,22 @@
       }
     ]
   },
-  "footer": {
-    "socials": {
-      "youtube": "https://www.youtube.com/@JoshIrwin",
-      "x": "https://x.com/joshirwin"
-    }
-  }
+  "keyFeatures": [
+    "Actionable AI and automation tutorials",
+    "Plug-and-play workflow templates",
+    "Tool guides for n8n, Cursor, Lovable, V0, and AI agents",
+    "Community-driven Q&A and wins sharing",
+    "YouTube resource library with walkthroughs",
+    "Free resources for creators and solopreneurs",
+    "Voice agent building guides",
+    "Vibe coding / AI-assisted development guides"
+  ],
+  "publicApiSurface": [
+    "Community discussion channels (General, Ask for Help, Wins + Results, Free Resources)",
+    "Classroom (tutorial courses and replays)",
+    "Calendar (live events and sessions)",
+    "Members directory",
+    "YouTube resource library",
+    "Free workflow templates"
+  ]
 }

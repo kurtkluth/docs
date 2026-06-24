@@ -1,0 +1,99 @@
+---
+title: "ChatGPT and Claude: AI for Writing and Reasoning"
+sidebarTitle: "ChatGPT & Claude"
+description: "Learn when and how to use ChatGPT and Claude for content creation, prompt engineering, summarization, and building AI-powered workflows."
+---
+
+ChatGPT and Claude are the large language models (LLMs) that power most AI workflows in the community. Understanding how to write effective prompts and choose the right model for the job dramatically improves the quality and reliability of your automations. These aren't interchangeable — each model has distinct strengths, and knowing when to reach for each one is a genuine competitive edge.
+
+## ChatGPT (OpenAI)
+
+ChatGPT is OpenAI's flagship model family, and the most widely recognized AI tool in the world. For builders, its power lies in its versatility and its deep ecosystem of integrations.
+
+- **Content drafting and copywriting** — ChatGPT excels at generating social posts, email sequences, ad copy, and blog outlines quickly. GPT-4o handles nuanced tone and brand voice well.
+- **Code generation** — GPT-4o writes functional code across most languages and frameworks. It's a solid choice for one-off scripts, SQL queries, and boilerplate generation.
+- **Customer-facing chat** — OpenAI's API and Assistants platform make it straightforward to deploy ChatGPT as a customer support or FAQ bot embedded in your product.
+- **Multimodal tasks** — GPT-4o accepts images, audio, and text as input, making it useful for tasks like analyzing screenshots, transcribing audio, and generating images via DALL-E.
+
+## Claude (Anthropic)
+
+Claude is Anthropic's model family, built with a strong emphasis on safety, instruction-following, and long-context reasoning. In AI Builders Circle, Claude is the go-to model for complex, high-stakes automation work.
+
+- **Long-context analysis** — Claude's context window (up to 200K tokens on Claude 3 models) makes it exceptional at reading and summarizing long documents, contracts, transcripts, and codebases in a single pass.
+- **Nuanced reasoning** — Claude follows complex, multi-part instructions more reliably than most models — critical for automation workflows where a misunderstood instruction breaks everything downstream.
+- **Production-quality code generation** — Claude Sonnet is a top-tier code generation model. It writes clean, well-commented code and handles tricky refactors with fewer hallucinations.
+- **Claude Code CLI** — Anthropic's Claude Code tool lets you run Claude directly in your terminal as an agentic coding assistant, making it the engine behind most AI Builders Circle code agent builds.
+
+## Choosing Between Them
+
+<Tabs>
+  <Tab title="Use ChatGPT when">
+    - You're building a **customer-facing chat interface** and want seamless OpenAI API integration
+    - You need **image generation** via DALL-E inside the same workflow
+    - You're using **GPT Store plugins** or OpenAI Assistants with file retrieval
+    - You need a quick, fast answer and **GPT-4o mini** gives you the speed and cost efficiency you need
+    - You're integrating with tools that have **native OpenAI connectors** (many no-code platforms default to OpenAI)
+  </Tab>
+  <Tab title="Use Claude when">
+    - You're **analyzing long documents** — call transcripts, contracts, research papers — that exceed GPT-4's context limits
+    - You need **production-quality code** with minimal back-and-forth; Claude Sonnet writes cleaner code on the first pass
+    - Your workflow requires **detailed reasoning chains** or strict adherence to complex, multi-part instructions
+    - You're using **Claude Code CLI** to build or iterate on a codebase directly from the terminal
+    - You want a model that **follows formatting instructions** (JSON schema, markdown tables, specific response structures) reliably in n8n workflows
+  </Tab>
+</Tabs>
+
+## Prompt Engineering Basics
+
+<AccordionGroup>
+  <Accordion title="Role Prompting">
+    Start every system prompt with a clear role definition: *"You are a professional B2B copywriter who specializes in SaaS email sequences."* This single line anchors the model's vocabulary, tone, and assumptions for the entire conversation. Without a role, the model defaults to a generic assistant voice that rarely matches your brand or use case.
+  </Accordion>
+  <Accordion title="Chain of Thought">
+    Ask the model to reason step-by-step before giving a final answer. Add a line like *"Think through this carefully before responding"* or *"First, list the key factors. Then give your recommendation."* This technique — called chain-of-thought prompting — significantly improves accuracy on tasks involving logic, math, or multi-step decisions.
+  </Accordion>
+  <Accordion title="Few-Shot Examples">
+    Provide two or three example input/output pairs inside your prompt to show the model exactly what format and style you need. This is far more effective than describing the format in words alone. Few-shot examples are especially powerful for classification tasks, tone-matching, and structured data extraction.
+  </Accordion>
+  <Accordion title="Output Formatting">
+    Always specify the exact output format you need — JSON object, bullet list, markdown table, numbered steps. When you're using the LLM inside an n8n workflow, a strict JSON output format means you can directly parse the response with a Set or Code node without any cleanup. Include a JSON schema example in your prompt to make the format unambiguous.
+  </Accordion>
+</AccordionGroup>
+
+## Example: Lead Qualification Agent System Prompt
+
+Use this as a starting template when deploying an LLM-powered lead qualification step inside an n8n workflow or a customer-facing chat.
+
+```text
+You are a lead qualification assistant for [Company Name], a [brief company description].
+
+Your job is to evaluate inbound leads based on the information provided and return a structured qualification score.
+
+Rules:
+- Be concise. Do not add commentary outside the JSON object.
+- Score leads from 1 (poor fit) to 5 (strong fit) based on: budget, company size, use case relevance, and urgency.
+- If any field is missing, set its score to null and flag it in the "missing_info" array.
+
+Output format (strict JSON):
+{
+  "lead_name": "string",
+  "company": "string",
+  "overall_score": 1-5,
+  "dimension_scores": {
+    "budget": 1-5 | null,
+    "company_size": 1-5 | null,
+    "use_case_fit": 1-5 | null,
+    "urgency": 1-5 | null
+  },
+  "missing_info": ["field_name", ...],
+  "recommended_action": "nurture" | "book_call" | "disqualify",
+  "reasoning": "One sentence explaining the recommended action."
+}
+
+Input you will receive:
+{{lead_data}}
+```
+
+<Tip>
+  When using Claude or ChatGPT inside n8n, pass a system prompt that defines the agent's role AND specifies the exact JSON output format. This makes parsing and routing the response much easier.
+</Tip>

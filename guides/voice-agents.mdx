@@ -1,0 +1,190 @@
+---
+title: "Build AI Voice Agents with ElevenLabs and n8n"
+sidebarTitle: "Voice Agents"
+description: "Learn how to build production-ready AI voice agents using ElevenLabs, n8n webhooks, and Claude — from transcript to deployed agent."
+---
+
+AI voice agents are autonomous phone bots that can handle inbound calls, qualify leads, answer FAQs, and book appointments — without a human on the line. This guide walks through building a production-ready voice agent using ElevenLabs, with n8n for integrations and Claude for the AI brain. By the end, you'll have an agent that can take calls, follow a conversation flow, and automatically log outcomes to your CRM.
+
+## How Voice Agents Work
+
+A voice agent processes a conversation in four stages, in near real-time:
+
+1. **Speech-to-text (STT)** — The caller speaks and the audio is transcribed to text.
+2. **LLM reasoning** — The transcript is sent to a language model (Claude), which reads the conversation history and generates the next response.
+3. **Text-to-speech (TTS)** — The response is converted back to natural-sounding audio and played to the caller.
+4. **Integrations** — At key moments (end of call, form capture, booking), the agent fires webhooks that trigger external workflows.
+
+**Tool breakdown by layer:**
+
+| Layer | Tool |
+|-------|------|
+| Speech-to-text + Text-to-speech | ElevenLabs Conversational AI |
+| Reasoning and conversation logic | Claude (Anthropic) |
+| Post-call integrations and CRM | n8n |
+| Phone number (optional) | Twilio |
+
+ElevenLabs handles the real-time audio pipeline so you don't have to. Claude handles reasoning. n8n handles everything that happens after the call ends.
+
+## What You'll Need
+
+Before you start building, gather the following:
+
+- **ElevenLabs account** — Starter plan or higher (Conversational AI is not available on the free tier)
+- **n8n instance** — Cloud or self-hosted; you just need a reachable webhook URL
+- **Claude API key** — From your [Anthropic console](https://console.anthropic.com) (ElevenLabs connects to Claude directly)
+- **Twilio account** *(optional)* — Only needed if you want to assign a real phone number to the agent for inbound calls
+
+## Building the Agent
+
+<Steps>
+  <Step title="Gather requirements">
+    Before writing a single prompt, define your agent's purpose with precision. For a lead qualification agent, answer these questions:
+
+    - What is the agent's goal? (e.g., qualify inbound leads and book discovery calls)
+    - What are the 5–10 questions it should ask, in order?
+    - What information needs to be captured? (name, email, company size, budget, etc.)
+    - What actions should it take at the end of the call? (add to CRM, send confirmation email, book a meeting)
+    - What are the disqualifying conditions? (wrong industry, no budget, etc.)
+
+    The more precisely you define this upfront, the better your system prompt will be and the fewer iterations you'll need.
+  </Step>
+
+  <Step title="Write the system prompt">
+    The system prompt is the most important part of your voice agent. It defines everything: the agent's name, persona, conversation flow, question sequence, decision logic, and fallback behavior.
+
+    A strong system prompt includes:
+
+    - **Identity** — The agent's name, company it represents, and its purpose
+    - **Tone and persona** — How it should sound (professional, friendly, concise)
+    - **Conversation flow** — The exact sequence of questions and what to do with each answer
+    - **Decision logic** — Branch points (e.g., "if the caller says their budget is under $500/month, thank them and end the call")
+    - **Fallbacks** — What to say when the agent doesn't know the answer or gets an unexpected response
+    - **Closing** — How to wrap up the call and set expectations
+
+    See the example system prompt below for a concrete reference.
+  </Step>
+
+  <Step title="Build in ElevenLabs">
+    Log into your ElevenLabs dashboard and navigate to **Conversational AI → Agents → Create Agent**.
+
+    - Give the agent a name
+    - Paste in your system prompt
+    - Select your **voice model** — ElevenLabs offers several pre-built voices, or you can clone a custom voice
+    - Set the **LLM** to Claude (connect your Anthropic API key under Settings if you haven't already)
+    - Configure **interruption sensitivity** and **response latency** settings for your use case (lower latency feels more natural; higher sensitivity means the agent won't talk over the caller)
+  </Step>
+
+  <Step title="Add a knowledge base">
+    Navigate to the **Knowledge Base** tab of your agent. Upload any documents the agent should reference during the call:
+
+    - FAQ documents
+    - Product or service descriptions
+    - Pricing sheets
+    - Case studies or objection-handling notes
+
+    ElevenLabs uses retrieval-augmented generation (RAG) to pull relevant chunks from these documents during the conversation. Keep each document focused and well-organized — the agent retrieves by relevance, so cleaner documents produce better answers.
+  </Step>
+
+  <Step title="Configure webhooks">
+    In your ElevenLabs agent settings, navigate to **Webhooks** and add a webhook URL pointing to your n8n workflow's webhook trigger endpoint.
+
+    Configure the webhook to fire on **call end**. ElevenLabs will POST a JSON payload to your n8n URL containing:
+
+    - Full conversation transcript
+    - Call metadata (duration, timestamp, phone number)
+    - Any structured data the agent collected (if you configured data collection fields)
+
+    Copy your n8n webhook URL from the n8n canvas — you'll find it by adding a **Webhook** trigger node and copying the production URL.
+  </Step>
+
+  <Step title="Build the n8n post-call workflow">
+    In n8n, build a workflow triggered by the ElevenLabs webhook. A typical post-call workflow does the following:
+
+    1. **Webhook node** — Receives the call payload from ElevenLabs
+    2. **Code or Set node** — Parses the transcript and extracts key fields (name, email, qualification status)
+    3. **CRM node** — Creates or updates a contact in your CRM (HubSpot, Airtable, GoHighLevel, etc.)
+    4. **IF node** — Branches based on qualification outcome (qualified vs. not qualified)
+    5. **Slack or Email node** — Notifies you with a summary of the call
+    6. *(Optional)* **Calendly or Cal.com node** — Sends a booking link to qualified leads automatically
+
+    Test the workflow by running a call and checking that the data flows through correctly before activating.
+  </Step>
+
+  <Step title="Test and deploy">
+    Use the **Test Call** button built into the ElevenLabs agent dashboard to run a simulated call directly from your browser — no phone number required.
+
+    Go through the full conversation as if you were a real caller. Then review:
+
+    - The transcript in ElevenLabs (did the agent follow the flow?)
+    - The n8n execution log (did the webhook fire and the data parse correctly?)
+    - The CRM or destination system (did the record appear correctly?)
+
+    Refine the system prompt based on what you observe. Most agents need 3–5 test iterations before they handle edge cases reliably. Once you're satisfied, set the agent to **Active** and connect your Twilio phone number if applicable.
+  </Step>
+</Steps>
+
+## Example System Prompt
+
+Here's a well-structured system prompt for an inbound lead qualification agent. Adapt the details for your own use case.
+
+<CodeGroup>
+```text Lead Qualification Agent System Prompt
+You are Aria, an AI assistant for Momentum Agency. Your job is to have a friendly, professional conversation with inbound callers to understand their needs and determine whether they're a good fit for our services.
+
+## Your Goal
+Qualify the caller by collecting key information, assess fit, and — if they qualify — set the expectation that a team member will follow up within 24 hours to book a discovery call.
+
+## Tone
+Warm, confident, and concise. Avoid filler words. Speak like a knowledgeable human, not a robot. Use the caller's first name once you have it.
+
+## Conversation Flow
+
+1. Greet the caller: "Hi, thanks for calling Momentum Agency. I'm Aria — I'll ask you a few quick questions to make sure we can help. Sound good?"
+
+2. Collect name and company: "Could I get your first name and the name of your company?"
+
+3. Ask about their challenge: "What's the main challenge you're hoping we can help with right now?"
+
+4. Ask about timeline: "Are you looking to get started in the next 30 days, or is this more exploratory?"
+
+5. Ask about budget: "Just so I can point you to the right option — do you have a monthly budget in the range of $2,000 or more for this?"
+
+6. Qualify or disqualify:
+   - If budget < $2,000 OR timeline > 90 days: "Thanks so much for sharing that. Based on what you've described, our services might not be the right fit right now — but I'd encourage you to check out our free resources at momentumagency.com/learn. Have a great day!"
+   - If qualified: "This sounds like a great fit. I'm going to flag your details for our team and someone will reach out within 24 hours to schedule a proper discovery call. You'll get a confirmation email shortly."
+
+## If You Don't Know the Answer
+If a caller asks something outside your knowledge base, say: "That's a great question — I want to make sure you get the right answer. Let me have one of our team members follow up with you on that directly."
+
+## Data to Collect
+- First name
+- Company name
+- Main challenge
+- Timeline
+- Budget range
+- Qualified (yes/no)
+```
+</CodeGroup>
+
+## Tips for Better Agents
+
+<Accordion title="Use a discovery call transcript">
+  Feed a real sales call transcript to Claude and ask it to draft the agent's system prompt based on the questions asked, the objections handled, and the natural phrasing used. Real transcripts capture the nuances of how your best salespeople actually talk — which produces an agent that sounds authentic rather than scripted.
+</Accordion>
+
+<Accordion title="Keep the knowledge base focused">
+  Upload only the documents the agent genuinely needs to answer caller questions. A 200-page company wiki creates retrieval noise — the agent may pull irrelevant chunks that confuse its responses. Smaller, purpose-built documents (a one-page FAQ, a concise pricing overview) produce much cleaner retrieval.
+</Accordion>
+
+<Accordion title="Handle fallbacks explicitly">
+  Every voice agent will encounter questions or situations it wasn't designed for. Tell the agent exactly what to do in those moments — don't leave it to improvise. A clear fallback instruction like *"If you're unsure, say 'Let me connect you with a team member' and end the call politely"* is far better than an agent that guesses and gets it wrong.
+</Accordion>
+
+<Accordion title="Review transcripts weekly">
+  Transcripts are the best debugging tool you have. Set a recurring reminder to review 5–10 transcripts every week, especially in the first month. Look for: questions the agent couldn't answer, points where the conversation went off-script, and moments where callers seemed confused or frustrated. Each transcript review is a direct improvement opportunity for your system prompt.
+</Accordion>
+
+<Note>
+  Josh's open-source ElevenLabs Voice Agent workflow on GitHub lets you drop in a call transcript and automatically build, test, and deploy a full agent using Claude Code — no manual prompt writing required. See the **YouTube Library** for the full step-by-step walkthrough of how the workflow operates end-to-end.
+</Note>

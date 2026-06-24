@@ -1,0 +1,56 @@
+---
+title: "Building AI Agents: From Prompts to Autonomous Systems"
+sidebarTitle: "AI Agents"
+description: "Learn how to build AI agents that plan, reason, and take action — including voice agents with ElevenLabs and autonomous workflows with n8n."
+---
+
+AI agents go beyond simple chatbots. They can plan multi-step tasks, use tools, search the web, write code, and take actions on your behalf. AI Builders Circle covers how to build practical agents — from simple prompt chains to fully autonomous voice agents. The key shift is moving from "ask AI a question" to "give AI a goal and let it figure out the steps."
+
+## What is an AI Agent?
+
+A regular LLM call is stateless and single-turn: you send a prompt, the model returns a response, and the interaction ends. An AI agent runs in a loop. It **perceives** its current context (inputs, memory, tool results), **plans** what to do next, **acts** by calling a tool or generating output, and then **observes** the result before deciding whether the goal is complete or another loop is needed.
+
+This loop — perceive → plan → act → observe — is what makes agents capable of tasks that require more than one step. An agent can browse a website, read the result, decide to search for more information, draft a summary, and send it to you — all without a human in the loop.
+
+## Types of Agents
+
+<CardGroup cols={2}>
+  <Card title="Conversational Agents" icon="comment" href="/tools/chatgpt-claude">
+    AI that chats, answers questions, and handles customer interactions.
+  </Card>
+  <Card title="Voice Agents" icon="microphone" href="/guides/voice-agents">
+    Phone and audio agents built with ElevenLabs that speak and listen in real time.
+  </Card>
+  <Card title="Workflow Agents" icon="diagram-project" href="/tools/n8n-automation">
+    Agentic n8n workflows that trigger, research, and act without human input.
+  </Card>
+  <Card title="Code Agents" icon="code" href="/tools/cursor-lovable">
+    Cursor and Claude Code agents that write, test, and deploy code autonomously.
+  </Card>
+</CardGroup>
+
+## Building a Voice Agent
+
+Voice agents are one of the highest-leverage builds you can deploy — they handle inbound calls, qualify leads, answer FAQs, and book appointments around the clock. Here's the process Josh uses to go from idea to live agent.
+
+<Steps>
+  <Step title="Gather requirements">
+    Define the agent's **persona** (name, tone, personality), the **scenarios** it needs to handle (booking, FAQ, escalation to a human), and the **actions** it must take (look up a calendar slot, log a call in a CRM). Write these down before touching any tool — clarity here saves hours of iteration later.
+  </Step>
+  <Step title="Write the system prompt">
+    Craft a system prompt that describes the agent's role, speaking style, and hard constraints. Be explicit: tell it what topics to avoid, how to handle objections, and exactly what to say when it doesn't know the answer. A well-written system prompt is the most important part of any voice agent build.
+  </Step>
+  <Step title="Set up the knowledge base">
+    Upload the documents, FAQs, pricing sheets, or product specs the agent should reference during calls. Most voice agent platforms let you attach a knowledge base that the agent queries in real time, so it always answers from your source-of-truth content rather than making things up.
+  </Step>
+  <Step title="Configure webhooks">
+    Connect the agent to your external systems — CRM, calendar, ticketing — using n8n or direct HTTP webhooks. For example, when the agent confirms a booking, it fires a webhook to an n8n workflow that creates a calendar event and logs the contact in GoHighLevel.
+  </Step>
+  <Step title="Test and iterate">
+    Run test calls using the platform's built-in dialer or a real phone number. Review the transcripts line by line. Identify where the agent hesitates, gives wrong answers, or goes off-script, then refine the system prompt and knowledge base until it performs consistently.
+  </Step>
+</Steps>
+
+<Note>
+  Josh's guide "Build a Voice Agent from a Call Transcript" walks through this entire process in 10 minutes using Claude Code. See the YouTube Library for the full walkthrough.
+</Note>

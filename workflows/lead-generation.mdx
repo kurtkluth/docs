@@ -1,0 +1,75 @@
+---
+title: "Lead Generation Workflows: Capture and Qualify Leads"
+sidebarTitle: "Lead Generation"
+description: "Automate lead capture, AI-powered qualification, and personalized follow-up sequences using n8n, GoHighLevel, and Claude."
+---
+
+A lead generation workflow captures interest, qualifies the lead using AI, and kicks off a follow-up sequence — all without you lifting a finger. AI Builders Circle members use these workflows to fill their pipelines while they focus on closing and delivering.
+
+## The Lead Gen Stack
+
+Most lead gen workflows in the community are built around four layers working together:
+
+- **Landing page** — Built with Lovable or V0, this is where a prospect first submits their information.
+- **CRM** — GoHighLevel stores contact records, tags, and follow-up sequences.
+- **Automation layer** — n8n acts as the connective tissue, listening for new leads and routing data between tools.
+- **AI model** — Claude or ChatGPT handles qualification scoring, personalization, and message drafting.
+
+Together, these four tools create a pipeline that runs 24/7 and treats every lead consistently.
+
+## Core Lead Gen Workflows
+
+<Accordion title="Lead Capture to CRM">
+  When someone fills out a form, the workflow adds them to GoHighLevel, applies the appropriate tags based on their answers, and immediately triggers a follow-up sequence. No manual data entry, no delays.
+</Accordion>
+
+<Accordion title="AI Lead Qualifier">
+  Passes lead data — job title, company size, intake form answers — to Claude, which scores the lead on a 1–10 scale and writes a qualification note back to the CRM record. You see every lead with context before you ever reach out.
+</Accordion>
+
+<Accordion title="Personalized Outreach Generator">
+  Uses LinkedIn profile data or form responses to generate a custom first-touch email with Claude, then sends it automatically via an email node. Every message sounds like it was written just for that person.
+</Accordion>
+
+<Accordion title="Follow-Up Reminder Automation">
+  If a lead hasn't responded within 3 days, the workflow sends a follow-up message automatically and posts a reminder in Slack so you can decide whether to escalate. Nothing goes cold by accident.
+</Accordion>
+
+## AI Lead Qualifier Workflow
+
+<Steps>
+  <Step title="Trigger">
+    A webhook fires in n8n whenever a new contact is created in GoHighLevel.
+  </Step>
+  <Step title="Enrich (optional)">
+    Call an enrichment API — Clearbit or Apollo work well — to append company size, industry, and role data to the lead record before scoring.
+  </Step>
+  <Step title="Qualify with Claude">
+    Send the lead's data to Claude along with your qualification rubric. Instruct it to return a structured JSON response containing a numeric score (1–10) and a short reasoning note explaining the rating.
+  </Step>
+  <Step title="Update the CRM">
+    Write the qualification score and Claude's reasoning note back to the GoHighLevel contact record as custom fields so your team has full context.
+  </Step>
+  <Step title="Route by score">
+    Use an IF node to split on the score. If the score is **7 or above**, send an immediate Slack alert so you can prioritize that lead. If it's **below 7**, add the contact to a nurture sequence in GoHighLevel.
+  </Step>
+</Steps>
+
+Here is the Claude qualification prompt structure used in Step 3:
+
+```json
+{
+  "model": "claude-3-5-sonnet-20241022",
+  "max_tokens": 512,
+  "messages": [
+    {
+      "role": "user",
+      "content": "You are a lead qualification assistant. Score the following lead on a scale of 1–10 based on these criteria:\n\n- Budget: Are they likely to afford a $2,000+ service? (0–3 pts)\n- Authority: Are they a decision-maker or business owner? (0–3 pts)\n- Need: Do they have a clear, urgent problem we can solve? (0–4 pts)\n\nReturn ONLY valid JSON in this format:\n{\n  \"score\": 8,\n  \"reasoning\": \"Owner of a 10-person agency with a stated budget and a clear automation need.\"\n}\n\nLead data:\nName: {{ $json.name }}\nJob Title: {{ $json.jobTitle }}\nCompany: {{ $json.company }}\nIntake Answer: {{ $json.intakeAnswer }}"
+    }
+  ]
+}
+```
+
+<Warning>
+  Always test lead qualification prompts with real examples before going live. A misconfigured prompt can mislabel high-value leads.
+</Warning>
